@@ -12,13 +12,11 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws IOException {
         int[][] adjacencyMatrix = getInputFile();
+        int startVertex = getStartVertex(adjacencyMatrix);
+        int endVeretx = getEndVertex(adjacencyMatrix);
 
         // UCFID: 4838979 - 48,83  83,38  38,89  89,97  97,79
-        dijkstra(adjacencyMatrix, 48,83);
-        dijkstra(adjacencyMatrix, 83,38);
-        dijkstra(adjacencyMatrix, 38,89);
-        dijkstra(adjacencyMatrix, 89,97);
-        dijkstra(adjacencyMatrix, 97,79);
+        dijkstra(adjacencyMatrix, startVertex,endVeretx);
     }
 
     private static int[][] convertListToArray(List<int[]> list)
@@ -30,7 +28,8 @@ public class Main {
         return array;
     }
 
-    private static void dijkstra(int[][] adjacencyMatrix, int startVertex, int endVertex) throws IOException {
+    private static void dijkstra(int[][] adjacencyMatrix, int startVertex, int endVertex) throws IOException
+    {
         int numVertices = adjacencyMatrix[0].length;
         int[] weights = new int[numVertices];
         boolean[] visited = new boolean[numVertices];
@@ -78,6 +77,42 @@ public class Main {
         }
 
         saveResults(startVertex, endVertex, weights[endVertex], previousVertex);
+    }
+
+    private static int getStartVertex(int[][] adjacencyMatrix)
+    {
+        boolean hasInput = false;
+        while (!hasInput)
+        {
+            try {
+                System.out.print("\nEnter start vertex: ");
+                Scanner keyb = new Scanner(System.in);
+                int input = Integer.parseInt(keyb.nextLine());
+                if (input >= 0 && input <= adjacencyMatrix.length-1) return input;
+                else System.out.println("Vertex out of bounds");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
+    }
+
+    private static int getEndVertex(int[][] adjacencyMatrix)
+    {
+        boolean hasInput = false;
+        while (!hasInput)
+        {
+            try {
+                System.out.print("\nEnter end vertex: ");
+                Scanner keyb = new Scanner(System.in);
+                int input = Integer.parseInt(keyb.nextLine());
+                if (input >= 0 && input <= adjacencyMatrix.length-1) return input;
+                else System.out.println("Vertex out of bounds");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
     }
 
     private static int[][] getInputFile()
