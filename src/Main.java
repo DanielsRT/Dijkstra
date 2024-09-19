@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -10,7 +11,8 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        int[][] adjacencyMatrix = readInputFile("Data.txt");
+        int[][] adjacencyMatrix = getInputFile();
+
         // UCFID: 4838979 - 48,83  83,38  38,89  89,97  97,79
         dijkstra(adjacencyMatrix, 48,83);
         dijkstra(adjacencyMatrix, 83,38);
@@ -78,6 +80,30 @@ public class Main {
         saveResults(startVertex, endVertex, weights[endVertex], previousVertex);
     }
 
+    private static int[][] getInputFile()
+    {
+        boolean hasInput = false;
+        while(!hasInput) {
+            try {
+                System.out.print("Enter input filename(leave blank for default): ");
+                Scanner keyb = new Scanner(System.in);
+                String input = keyb.nextLine();
+                if (input.isEmpty()) return readDefaultInput("Data.txt");
+                else {
+                    File f = new File(input);
+                    if (f.exists() && !f.isDirectory()) {
+                        hasInput = true;
+                        return readInput(input);
+                    } else System.out.println("File Not Found!");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
     private static List<Integer> getPath(int currentVertex, int[] parents, List<Integer> result)
     {
         if (currentVertex == -1)
@@ -90,7 +116,7 @@ public class Main {
         return getPath(parents[currentVertex], parents, result);
     }
 
-    public static int[][] readInputFile(String filename)
+    public static int[][] readDefaultInput(String filename)
     {
         List<int[]> adjacencyList = new ArrayList<>();
         InputStream inputStream = Main.class.getResourceAsStream(filename);
@@ -113,6 +139,31 @@ public class Main {
             }
         } else System.out.println("Resource Not Found");
 
+        return convertListToArray(adjacencyList);
+    }
+
+    private static int[][] readInput(String filename)
+    {
+        List<int[]> adjacencyList = new ArrayList<>();
+        try {
+            Scanner scanner = new Scanner(new File(filename));
+
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] lineParts = line.split("\\s+");
+                String[] strArray = lineParts[1].split(",");
+                int[] intArray = new int[strArray.length];
+                for(int i = 0; i < strArray.length; i++)
+                {
+                    intArray[i] = Integer.parseInt(strArray[i]);
+                }
+                adjacencyList.add(intArray);
+            }
+
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return convertListToArray(adjacencyList);
     }
 
