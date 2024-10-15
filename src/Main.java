@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -10,13 +11,12 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        int[][] adjacencyMatrix = readInputFile("Data.txt");
+        int[][] adjacencyMatrix = getInputFile();
+        int startVertex = getStartVertex(adjacencyMatrix);
+        int endVeretx = getEndVertex(adjacencyMatrix);
+
         // UCFID: 4838979 - 48,83  83,38  38,89  89,97  97,79
-        dijkstra(adjacencyMatrix, 48,83);
-        dijkstra(adjacencyMatrix, 83,38);
-        dijkstra(adjacencyMatrix, 38,89);
-        dijkstra(adjacencyMatrix, 89,97);
-        dijkstra(adjacencyMatrix, 97,79);
+        dijkstra(adjacencyMatrix, startVertex,endVeretx);
     }
 
     private static int[][] convertListToArray(List<int[]> list)
@@ -28,7 +28,8 @@ public class Main {
         return array;
     }
 
-    private static void dijkstra(int[][] adjacencyMatrix, int startVertex, int endVertex) throws IOException {
+    private static void dijkstra(int[][] adjacencyMatrix, int startVertex, int endVertex) throws IOException
+    {
         int numVertices = adjacencyMatrix[0].length;
         int[] weights = new int[numVertices];
         boolean[] visited = new boolean[numVertices];
@@ -48,9 +49,7 @@ public class Main {
         {
             int nearestVertex = -1;
             int smallestWeight = Integer.MAX_VALUE;
-            for (int vertexIndex = 0;
-                 vertexIndex < numVertices;
-                 vertexIndex++)
+            for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
             {
                 if (!visited[vertexIndex] && weights[vertexIndex] < smallestWeight)
                 {
@@ -78,6 +77,66 @@ public class Main {
         saveResults(startVertex, endVertex, weights[endVertex], previousVertex);
     }
 
+    private static int getStartVertex(int[][] adjacencyMatrix)
+    {
+        boolean hasInput = false;
+        while (!hasInput)
+        {
+            try {
+                System.out.print("\nEnter start vertex: ");
+                Scanner keyb = new Scanner(System.in);
+                int input = Integer.parseInt(keyb.nextLine());
+                if (input >= 0 && input <= adjacencyMatrix.length-1) return input;
+                else System.out.println("Vertex out of bounds");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
+    }
+
+    private static int getEndVertex(int[][] adjacencyMatrix)
+    {
+        boolean hasInput = false;
+        while (!hasInput)
+        {
+            try {
+                System.out.print("\nEnter end vertex: ");
+                Scanner keyb = new Scanner(System.in);
+                int input = Integer.parseInt(keyb.nextLine());
+                if (input >= 0 && input <= adjacencyMatrix.length-1) return input;
+                else System.out.println("Vertex out of bounds");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
+    }
+
+    private static int[][] getInputFile()
+    {
+        boolean hasInput = false;
+        while(!hasInput) {
+            try {
+                System.out.print("Enter input filename(leave blank for default): ");
+                Scanner keyb = new Scanner(System.in);
+                String input = keyb.nextLine();
+                if (input.isEmpty()) return readDefaultInput("Data.txt");
+                else {
+                    File f = new File(input);
+                    if (f.exists() && !f.isDirectory()) {
+                        hasInput = true;
+                        return readInput(input);
+                    } else System.out.println("File Not Found!");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
     private static List<Integer> getPath(int currentVertex, int[] parents, List<Integer> result)
     {
         if (currentVertex == -1)
@@ -90,7 +149,7 @@ public class Main {
         return getPath(parents[currentVertex], parents, result);
     }
 
-    public static int[][] readInputFile(String filename)
+    public static int[][] readDefaultInput(String filename)
     {
         List<int[]> adjacencyList = new ArrayList<>();
         InputStream inputStream = Main.class.getResourceAsStream(filename);
@@ -113,6 +172,31 @@ public class Main {
             }
         } else System.out.println("Resource Not Found");
 
+        return convertListToArray(adjacencyList);
+    }
+
+    private static int[][] readInput(String filename)
+    {
+        List<int[]> adjacencyList = new ArrayList<>();
+        try {
+            Scanner scanner = new Scanner(new File(filename));
+
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] lineParts = line.split("\\s+");
+                String[] strArray = lineParts[1].split(",");
+                int[] intArray = new int[strArray.length];
+                for(int i = 0; i < strArray.length; i++)
+                {
+                    intArray[i] = Integer.parseInt(strArray[i]);
+                }
+                adjacencyList.add(intArray);
+            }
+
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return convertListToArray(adjacencyList);
     }
 
