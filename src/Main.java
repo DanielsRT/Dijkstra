@@ -49,9 +49,7 @@ public class Main {
         {
             int nearestVertex = -1;
             int smallestWeight = Integer.MAX_VALUE;
-            for (int vertexIndex = 0;
-                 vertexIndex < numVertices;
-                 vertexIndex++)
+            for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
             {
                 if (!visited[vertexIndex] && weights[vertexIndex] < smallestWeight)
                 {
